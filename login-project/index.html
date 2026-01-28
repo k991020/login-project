@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Style Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --apple-blue: #0071e3;
+            --apple-bg: #f5f5f7;
+            --apple-text: #1d1d1f;
+            --apple-gray: #86868b;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--apple-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--apple-text);
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            background-color: var(--white);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 850px;
+            max-width: 100%;
+            min-height: 550px;
+        }
+
+        /* 폼 공통 스타일 */
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .sign-in-container { left: 0; width: 50%; z-index: 2; }
+        .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
+
+        /* 컨테이너 활성화 시 이동 */
+        .container.active .sign-in-container { transform: translateX(100%); }
+        .container.active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: show 0.6s;
+        }
+
+        @keyframes show {
+            0%, 49.99% { opacity: 0; z-index: 1; }
+            50%, 100% { opacity: 1; z-index: 5; }
+        }
+
+        form {
+            background-color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 50px;
+            height: 100%;
+            text-align: center;
+        }
+
+        h1 { font-size: 32px; font-weight: 700; margin-bottom: 20px; }
+
+        input {
+            background-color: #f2f2f7;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 8px 0;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3); }
+
+        button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 50px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        /* 소셜 로그인 섹션 */
+        .social-text { margin: 30px 0 15px; font-size: 14px; color: var(--apple-gray); }
+        .social-container { display: flex; gap: 10px; width: 100%; }
+        .social-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #d2d2d7;
+            border-radius: 20px;
+            padding: 10px;
+            text-decoration: none;
+            color: var(--apple-text);
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .social-item:hover { background-color: #f5f5f7; }
+
+        /* 오버레이 (움직이는 배경) */
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s ease-in-out;
+            z-index: 100;
+        }
+
+        .container.active .overlay-container { transform: translateX(-100%); }
+
+        .overlay {
+            background: var(--apple-blue);
+            color: #fff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .container.active .overlay { transform: translateX(50%); }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left { transform: translateX(-20%); }
+        .container.active .overlay-left { transform: translateX(0); }
+        .overlay-right { right: 0; transform: translateX(0); }
+        .container.active .overlay-right { transform: translateX(20%); }
+
+        button.ghost { background: transparent; border: 2px solid #fff; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="container">
+    <div class="form-container sign-up-container">
+        <form>
+            <h1>Create Account</h1>
+            <input type="text" id="upName" placeholder="Name" />
+            <input type="email" id="upEmail" placeholder="Email" />
+            <input type="password" id="upPw" placeholder="Password" />
+            <button type="button" id="upBtn">Sign Up</button>
+        </form>
+    </div>
+
+    <div class="form-container sign-in-container">
+        <form>
+            <h1>Sign In</h1>
+            <input type="email" id="loginEmail" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <button type="button" id="loginBtn" >Sign In</button>
+            
+            <p class="social-text">Or use social login</p>
+            <div class="social-container">
+                <a href="#" class="social-item"><i class="fab fa-google" style="color:#EA4335"></i><span>Google</span></a>
+                <a href="#" class="social-item"><i class="fab fa-apple" style="color:#000"></i><span>Apple</span></a>
+            </div>
+        </form>
+    </div>
+
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>계정이 이미 있으신가요?</p>
+                <button class="ghost" id="signIn">로그인</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <p>아직 회원이 아니신가요?</p>
+                <button class="ghost" id="signUp">회원가입</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. 필요한 모든 요소들을 한 번에 정확하게 정의합니다.
+    const container = document.getElementById('container');
+    const signUpButton = document.getElementById('signUp'); // "회원가입으로" 전환 버튼
+    const signInButton = document.getElementById('signIn'); // "로그인으로" 전환 버튼
+
+    const upBtn = document.getElementById('upBtn');     // 회원가입 완료 버튼
+    const upName = document.getElementById('upName');   // 이름 입력창
+    const upEmail = document.getElementById('upEmail'); // 이메일 입력창
+    const upPw = document.getElementById('upPw');       // 비밀번호 입력창
+
+    const loginBtn = document.getElementById('loginBtn');
+    const loginEmail = document.getElementById('loginEmail');
+
+    // [핵심] 입력창을 깨끗하게 청소하는 전용 함수 (함수로 만들면 재사용이 편해요!)
+    function clearSignUpForm() {
+        if (upName) upName.value = "";
+        if (upEmail) upEmail.value = "";
+        if (upPw) upPw.value = "";
+    }
+
+    // 2. "회원가입으로" 이동 버튼 클릭 시 (사용자 아이디어 반영!)
+    signUpButton.addEventListener('click', () => {
+        clearSignUpForm(); // 화면이 넘어가기 전에 미리 싹 비워버립니다. ✨
+        container.classList.add("active");
+    });
+
+    // 3. "로그인으로" 이동 버튼 클릭 시
+    signInButton.addEventListener('click', () => {
+        container.classList.remove("active");
+    });
+
+    // 4. 진짜 회원가입(Sign Up) 버튼을 눌렀을 때의 로직
+    upBtn.addEventListener('click', async (event) => { // 꼭 async를 붙여주세요!
+        event.preventDefault(); 
+        
+        // [1순위] 검사 먼저 하기 (기존 로직 그대로 활용)
+        if (upName.value === "") {
+            alert("이름을 입력해 주세요! 🍎");
+            return;
+        }
+        if (upPw.value.length < 8) {
+            alert("비밀번호가 너무 짧아요! 8자리 이상 써주세요. 🛡️");
+            return;
+        }
+
+        // [2순위] 검사 통과했을 때만 서버로 데이터 보내기
+        try {
+            const response = await fetch('http://127.0.0.1:8000/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: upName.value,
+                    email: upEmail.value,
+                    password: upPw.value
+                })
+            });
+
+            const result = await response.json();
+            alert(result.message); // 서버에서 온 "회원가입 성공!" 메시지 띄우기
+
+            // 성공 후 정리 로직
+            clearSignUpForm();
+            container.classList.remove("active");
+        } catch (error) {
+            alert("서버와 연결할 수 없습니다. 서버가 켜져 있는지 확인해 주세요! 🔌");
+        }
+    });
+
+    // 5. 로그인 버튼 기능
+    loginBtn.addEventListener('click', async (event) => { // async 추가!
+        event.preventDefault();
+
+        if (loginEmail.value === "") {
+            alert("이메일을 입력해 주세요! 🍎");
+            return;
+        }
+
+        try {
+            // [서버에 로그인 요청 보내기]
+            const response = await fetch('http://127.0.0.1:8000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: loginEmail.value,
+                    password: document.querySelector('.sign-in-container input[type="password"]').value
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.message === "success") {
+                alert(`반갑습니다, ${result.username}님! 진짜 로그인이 되었습니다. ✨`);
+            } else {
+                alert("가입되지 않은 정보이거나 비밀번호가 틀렸습니다. 🍎");
+            }
+        } catch (error) {
+            alert("서버 연결에 실패했습니다. 파이썬 서버가 켜져 있나요? 🔌");
+        }
+    });
+</script>
+</body>
+</html>
